@@ -15,11 +15,14 @@ import numpy as np
 class Singleton:
     """ Singleton pattern """
     _instance = None
-    def __new__(cls):
+    def __new__(cls, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance.is_initialized = False
         return cls._instance
+    
+    def __init__(self):
+        self._instance.__init__(**kwargs)
 
     @property
     def singleton_initialized(cls):
@@ -51,7 +54,7 @@ mapping=["surface",
 
 class UniDic(Singleton):
     def __init__(self,
-                unidic_path  = get_mecab_default_path() + "/unidic",
+                unidic_path  = None,
                 mecabrc_path = os.path.dirname(os.path.abspath(__file__)) + "/my_mecabrc",
                 verbose = False
             ):
@@ -60,7 +63,10 @@ class UniDic(Singleton):
         else:
             self.singleton_initialized = True
 
-            self.unidic_path  = unidic_path
+            if unidic_path is None:
+                self.unidic_path = get_mecab_default_path() + "/unidic"
+            else:
+                self.unidic_path  = unidic_path
             self.mecabrc_path = mecabrc_path
             if verbose:
                 print("ℹ️  [ MeCab setting ] unidic=\'{}\'".format(self.unidic_path), file=sys.stderr)

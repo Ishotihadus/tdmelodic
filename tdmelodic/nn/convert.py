@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 # -----------------------------------------------------------------------------
 
+import argparse
 import sys
 import os
 import csv
@@ -34,9 +35,9 @@ class Converter(object):
     # gpu_id = -1
     # bs = 1
     accent_symbol={0: "]", 1 : "", 2: "["}
-    def __init__(self):
+    def __init__(self, dicdir=None):
         self.model = InferAccent()
-        self.unidic = UniDic()
+        self.unidic = UniDic(unidic_path=dicdir)
 
     def encode_sy(self, surface, yomi):
         # analyze surface, and get the result of MeCab+UniDic
@@ -128,13 +129,21 @@ class Converter(object):
 
 # =============================================================================================
 def main_s2ya():
-    tdmelodic = Converter()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dicdir", type=str, default=None)
+    args = parser.parse_args()
+
+    tdmelodic = Converter(dicdir=args.dicdir)
     for surface in sys.stdin:
         accent = tdmelodic.s2ya(surface)
         print(accent)
 
 def main_sy2a():
-    tdmelodic = Converter()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dicdir", type=str, default=None)
+    args = parser.parse_args()
+
+    tdmelodic = Converter(dicdir=args.dicdir)
     for line in sys.stdin:
         surface, yomi = line.strip().split(",")
         accent = tdmelodic.sy2a(surface, yomi)
