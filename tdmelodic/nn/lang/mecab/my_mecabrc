@@ -46,7 +46,7 @@ eos-format-unidic  = EOS\n
 
 ; アクセント情報の中にはカンマを含むカラムがあるのでので、タブ区切りにする
 ; 未知語はそのまま出力する
-node-format-acc = %m\t%f[9]\t%f[6]\t%F-[0,1,2,3]\t%f[12]\t%f[23]\t%f[24]\n
+node-format-acc = %m\t%f[9]\t%f[6]\t%F-[0,1,2,3]\t%f[12]\t%f[24]\t%f[25]\n
 unk-format-acc  = %m\t%m\t%m\t%F-[0,1,2,3]\t*\t*\t*\t*\n
 bos-format-acc  =
 eos-format-acc  = EOS\n
@@ -57,7 +57,7 @@ bos-format-simple  =
 eos-format-simple  = EOS\n
 
 ; -Oyomi
-node-format-yomi = %f[9](%f[23])\s
+node-format-yomi = %f[9](%f[24])\s
 unk-format-yomi  = <unk>%m</unk>\s
 bos-format-yomi  =
 eos-format-yomi  = \n

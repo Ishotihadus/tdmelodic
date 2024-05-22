@@ -1,0 +1,18 @@
+---
+name: tdmelodic
+channels:
+  - intel
+  - conda-forge
+dependencies:
+  - python=3.11
+  - chainer
+  - jaconv
+  - matplotlib
+  - mecab-python3
+  - numpy
+  - pip
+  - python-levenshtein
+  - regex
+  - tqdm
+  - pip:
+      - romkan

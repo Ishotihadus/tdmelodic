@@ -8,6 +8,7 @@
 
 import sys
 
+
 def count_lines(fp):
     if fp is not sys.stdin:
         for i, l in enumerate(fp):

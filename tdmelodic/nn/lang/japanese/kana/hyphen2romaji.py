@@ -6,9 +6,8 @@
 # LICENSE file in the root directory of this source tree.
 # -----------------------------------------------------------------------------
 
-import sys
-import os
 import re
+
 
 def replace_hyphen_by_romaji(text):
     """
@@ -26,15 +25,18 @@ def replace_hyphen_by_romaji(text):
             text = text[2:]
             continue
 
-        text = re.sub(r"(?P<vowel>[aeiou])[-~][-~]", r"\g<vowel>x\g<vowel>", text) # "-" を 2文字
+        text = re.sub(
+            r"(?P<vowel>[aeiou])[-~][-~]", r"\g<vowel>x\g<vowel>", text
+        )  # "-" を 2文字
         text = re.sub(r"A[-~][-~]", r"Axa", text)
         text = re.sub(r"E[-~][-~]", r"Exe", text)
         text = re.sub(r"O[-~][-~]", r"Oxo", text)
         text = re.sub(r"U[-~][-~]", r"Uxu", text)
         if text_ == text:
-            break # 変化しなかったら終わり
+            break  # 変化しなかったら終わり
 
     return text
+
 
 if __name__ == "__main__":
     print(replace_hyphen_by_romaji("xa--xi--xu--xe--xo--"))

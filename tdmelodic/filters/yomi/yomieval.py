@@ -1,7 +1,9 @@
+import jaconv
 import Levenshtein
 import romkan
-import jaconv
+
 from tdmelodic.nn.lang.mecab.unidic import UniDic
+
 
 class YomiEvaluator():
     def __init__(self, rank_weight = 0.1, romaji_priority=2, nbest=10):

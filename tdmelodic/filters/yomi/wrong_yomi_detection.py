@@ -7,21 +7,16 @@
 # -----------------------------------------------------------------------------
 
 # -*- coding: utf-8 -*-
-import sys
-import os
-import argparse
-import regex as re
-import csv
-from tqdm import tqdm
 
 import unicodedata
-import jaconv
 from dataclasses import dataclass
+
+import jaconv
 
 from tdmelodic.nn.lang.japanese.kansuji import numeric2kanji
 from tdmelodic.util.dic_index_map import get_dictionary_index_map
-from tdmelodic.util.util import count_lines
 from tdmelodic.util.word_type import WordType
+
 from .yomieval import YomiEvaluator
 
 
@@ -31,11 +26,12 @@ class LineInfo(object):
     yomi: str
     pos: str
 
+
 class SimpleWrongYomiDetector(object):
     def __init__(self, distance_threshold=10, ratio_threshold=0.7, mode="unidic"):
         """
-If the Levenshtein distance between the provided yomi and the predicted yomi from the surface form
-is greater than the given thresholds, the entry will be removed.
+        If the Levenshtein distance between the provided yomi and the predicted yomi from the surface form
+        is greater than the given thresholds, the entry will be removed.
         """
         self.distance_threshold = distance_threshold
         self.ratio_threshold = ratio_threshold
@@ -62,31 +58,34 @@ is greater than the given thresholds, the entry will be removed.
                 return line
 
     def is_target(self, line):
-        not_target = self.wt.is_person(line) or \
-                self.wt.is_emoji(line) or \
-                self.wt.is_symbol(line) or \
-                self.wt.is_numeral(line)
+        not_target = (
+            self.wt.is_person(line)
+            or self.wt.is_emoji(line)
+            or self.wt.is_symbol(line)
+            or self.wt.is_numeral(line)
+        )
         return not not_target
-
 
     def get_line_info(self, line, IDX_MAP):
         s = line[IDX_MAP["SURFACE"]]
         y = line[IDX_MAP["YOMI"]]
-        pos = "-".join([line[i] for i in [IDX_MAP["POS1"], IDX_MAP["POS2"], IDX_MAP["POS3"]]])
+        pos = "-".join(
+            [line[i] for i in [IDX_MAP["POS1"], IDX_MAP["POS2"], IDX_MAP["POS3"]]]
+        )
         s = self.normalize_surface(s)
-        y = y.replace("[","").replace("]","") # remove accent marks
+        y = y.replace("[", "").replace("]", "")  # remove accent marks
 
         return LineInfo(s, y, pos)
 
     def normalize_surface(self, text):
         # 全て全角に統一して処理する。
-        text = unicodedata.normalize("NFKC",text)
+        text = unicodedata.normalize("NFKC", text)
         text = jaconv.h2z(text, digit=True, ascii=True, kana=True)
 
         # kansuji
         text = numeric2kanji(text)
 
         # (株), 株式会社などは無視
-        text = text.replace("（株）","株式会社")
-        text = text.replace("（有）","有限会社")
+        text = text.replace("（株）", "株式会社")
+        text = text.replace("（有）", "有限会社")
         return text

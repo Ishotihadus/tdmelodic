@@ -7,32 +7,29 @@
 # -----------------------------------------------------------------------------
 
 # -*- coding: utf-8 -*-
-import sys
-import os
-import argparse
-import regex as re
-import csv
-from tqdm import tqdm
-import tempfile
 import copy
+import csv
+import sys
 import unicodedata
+
 import jaconv
+from tqdm import tqdm
 
 from tdmelodic.util.dic_index_map import get_dictionary_index_map
 from tdmelodic.util.util import count_lines
 from tdmelodic.util.word_type import WordType
 
-from .yomi.basic import modify_longvowel_errors
-from .yomi.basic import modify_yomi_of_numerals
+from .yomi.basic import modify_longvowel_errors, modify_yomi_of_numerals
 from .yomi.particle_yomi import ParticleYomi
 from .yomi.wrong_yomi_detection import SimpleWrongYomiDetector
+
 
 class NeologdPatch(object):
     def __init__(self, *args, **kwargs):
         for k, v in kwargs.items():
             if k != "input" and k != "output":
                 self.__setattr__(k, v)
-        self.IDX_MAP = get_dictionary_index_map(self.mode) # dictionary type
+        self.IDX_MAP = get_dictionary_index_map(self.mode)  # dictionary type
         self.wt = WordType(self.mode)
         self.wrong_yomi_detector = SimpleWrongYomiDetector(mode=self.mode)
         self.particle_yomi = ParticleYomi()
@@ -40,13 +37,18 @@ class NeologdPatch(object):
     def showinfo(self):
         print("ℹ️  [ Info ]", file=sys.stderr)
         self.message("| {}  Hash tags will{}be removed.", self.rm_hashtag)
-        self.message("| {}  Noisy katakana words will{}be removed.", self.rm_noisy_katakana)
+        self.message(
+            "| {}  Noisy katakana words will{}be removed.", self.rm_noisy_katakana
+        )
         self.message("| {}  Person names will{}be removed.", self.rm_person)
         self.message("| {}  Emojis will{}be removed.", self.rm_emoji)
         self.message("| {}  Symbols will{}be removed.", self.rm_symbol)
         self.message("| {}  Numerals will{}be removed.", self.rm_numeral)
         self.message("| {}  Wrong yomi words will{}be removed.", self.rm_wrong_yomi)
-        self.message("| {}  Words with special particles \"は\" and \"へ\" will{}be removed", self.rm_special_particle)
+        self.message(
+            '| {}  Words with special particles "は" and "へ" will{}be removed',
+            self.rm_special_particle,
+        )
         self.message("| {}  Long vowel errors will{}be corrected.", self.cor_longvow)
         self.message("| {}  Numeral yomi errors will{}be corrected.", self.cor_yomi_num)
         self.message("| {}  Surface forms will{}be normalized.", self.normalize)
@@ -60,8 +62,8 @@ class NeologdPatch(object):
         print(message, file=sys.stderr)
 
     def add_accent_column(self, line, idx_accent=None):
-        line = line + ['' for i in range(10)]
-        line[idx_accent] = '@'
+        line = line + ["" for i in range(12)]
+        line[idx_accent] = "@"
         return line
 
     def normalize_surface(self, line, idx_surface=None):
@@ -70,7 +72,7 @@ class NeologdPatch(object):
         s = s.upper()
         s = jaconv.normalize(s, "NFKC")
         s = jaconv.h2z(s, digit=True, ascii=True, kana=True)
-        s = s.replace("\u00A5", "\uFFE5") # yen symbol
+        s = s.replace("\u00a5", "\uffe5")  # yen symbol
         line[idx_surface] = s
         return line
 
@@ -110,8 +112,11 @@ class NeologdPatch(object):
 
         if self.cor_yomi_num:
             if self.wt.is_numeral(line):
-                line = modify_yomi_of_numerals(line,
-                    idx_surface=self.IDX_MAP["SURFACE"], idx_yomi=self.IDX_MAP["YOMI"])
+                line = modify_yomi_of_numerals(
+                    line,
+                    idx_surface=self.IDX_MAP["SURFACE"],
+                    idx_yomi=self.IDX_MAP["YOMI"],
+                )
 
         # ----------------------------------------------------------------------
         # 助詞の読みを修正する（TODO）
@@ -144,7 +149,7 @@ class NeologdPatch(object):
         self.showinfo()
         L = count_lines(fp_in)
         n_removed = 0
-        n_corrected= 0
+        n_corrected = 0
         for line in tqdm(csv.reader(fp_in), total=L):
             try:
                 line_processed = self.process_single_line(line)
@@ -157,7 +162,7 @@ class NeologdPatch(object):
                 continue
             if line_processed[:20] != line[:20]:
                 n_corrected += 1
-            fp_out.write(','.join(line_processed) + '\n')
+            fp_out.write(",".join(line_processed) + "\n")
 
         print("🍺  [ Complete! ]", file=sys.stderr)
         print("📊  Number of removed entries ", n_removed, file=sys.stderr)

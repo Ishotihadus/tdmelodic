@@ -7,12 +7,13 @@
 # -----------------------------------------------------------------------------
 
 # -*- coding: utf-8 -*-
-import sys
-import os
 import argparse
-import csv
 import copy
+import csv
+import sys
+
 from tqdm import tqdm
+
 from tdmelodic.util.dic_index_map import get_dictionary_index_map
 from tdmelodic.util.util import count_lines
 
@@ -20,32 +21,41 @@ from tdmelodic.util.util import count_lines
 
 IDX_MAP = get_dictionary_index_map("unidic")
 
-def avoid_overflow(line, cost, INT16_MIN = -32768, INT16_MAX = 32767):
+
+def avoid_overflow(line, cost, INT16_MIN=-32768, INT16_MAX=32767):
     """avoid overflow (signed short int)"""
     cost = INT16_MAX if cost > INT16_MAX else INT16_MIN if cost < INT16_MIN else cost
     line[IDX_MAP["COST"]] = str(cost)
     return line, cost
 
+
 def modify_unigram_cost(line, verbose=True):
     cost = int(line[IDX_MAP["COST"]])
 
     # 数詞のコストを必要に応じて調整する
-    if (line[IDX_MAP["SURFACE"]][0] in [str(i) for i in range(10)]) and len(line[1]) >= 2:
+    if (line[IDX_MAP["SURFACE"]][0] in [str(i) for i in range(10)]) and len(
+        line[1]
+    ) >= 2:
         cost = cost - 5000
 
     # 人名のコストを必要に応じて調整する
-    elif line[IDX_MAP["POS1"]] == "名詞" and line[IDX_MAP["POS2"]] == "固有名詞" and line[IDX_MAP["POS3"]] == "人名":
+    elif (
+        line[IDX_MAP["POS1"]] == "名詞"
+        and line[IDX_MAP["POS2"]] == "固有名詞"
+        and line[IDX_MAP["POS3"]] == "人名"
+    ):
         cost = cost + 5000
 
     else:
-    # 必要であればその他の単語のコストも全体的に高めるなど
-    # （例えばUniDicに同じ単語がある場合はUniDicを優先させるなど）
+        # 必要であればその他の単語のコストも全体的に高めるなど
+        # （例えばUniDicに同じ単語がある場合はUniDicを優先させるなど）
         pass
-        #cost = cost + 10000
+        # cost = cost + 10000
 
     line, cost = avoid_overflow(line, cost)
 
     return line
+
 
 # ------------------------------------------------------------------------------------
 def main_(fp_in, fp_out):
@@ -60,28 +70,31 @@ def main_(fp_in, fp_out):
             print("after", line_modified, file=sys.stderr)
 
         # output
-        line = ','.join(line_modified) + '\n'
+        line = ",".join(line_modified) + "\n"
         fp_out.write(line)
 
     print("Complete!", file=sys.stderr)
     return
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-i',
-        '--input',
-        nargs='?',
+        "-i",
+        "--input",
+        nargs="?",
         type=argparse.FileType("r"),
         default=sys.stdin,
-        help='input CSV file (NEologd dicitionary file) <default=STDIN>')
+        help="input CSV file (NEologd dicitionary file) <default=STDIN>",
+    )
     parser.add_argument(
-        '-o',
-        '--output',
-        nargs='?',
+        "-o",
+        "--output",
+        nargs="?",
         type=argparse.FileType("w"),
         default=sys.stdout,
-        help='output CSV file <default=STDOUT>')
+        help="output CSV file <default=STDOUT>",
+    )
     args = parser.parse_args()
 
     if args.input == args.output:
@@ -92,5 +105,6 @@ def main():
         except Exception as e:
             print(e)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

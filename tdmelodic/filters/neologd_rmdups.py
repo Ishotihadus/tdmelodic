@@ -6,37 +6,37 @@
 # LICENSE file in the root directory of this source tree.
 # -----------------------------------------------------------------------------
 # -*- coding: utf-8 -*-
-import sys
-import os
-import argparse
-import regex as re
 import csv
-from tqdm import tqdm
-
-import jaconv
+import sys
 import unicodedata
 from dataclasses import dataclass
+
+import jaconv
+from tqdm import tqdm
 
 from tdmelodic.nn.lang.japanese.kansuji import numeric2kanji
 from tdmelodic.util.dic_index_map import get_dictionary_index_map
 from tdmelodic.util.util import count_lines
 from tdmelodic.util.word_type import WordType
+
 from .yomi.yomieval import YomiEvaluator
+
 
 # ------------------------------------------------------------------------------------
 def normalize_surface(text):
     # hankaku
-    text = unicodedata.normalize("NFKC",text)
+    text = unicodedata.normalize("NFKC", text)
     text = jaconv.h2z(text, digit=True, ascii=True, kana=False)
 
     # kansuji
     text = numeric2kanji(text)
 
     # (株), 株式会社など
-    text = text.replace("（株）","・カブシキガイシャ・")
-    text = text.replace("（有）","・ユウゲンガイシャ・")
-    text = text.replace("＆","・アンド・")
+    text = text.replace("（株）", "・カブシキガイシャ・")
+    text = text.replace("（有）", "・ユウゲンガイシャ・")
+    text = text.replace("＆", "・アンド・")
     return text
+
 
 # ------------------------------------------------------------------------------------
 @dataclass
@@ -45,13 +45,17 @@ class LineInfo(object):
     yomi: str
     pos: str
 
+
 def get_line_info(line, IDX_MAP):
     s = line[IDX_MAP["SURFACE"]]
     y = line[IDX_MAP["YOMI"]]
-    pos = "-".join([line[i] for i in [IDX_MAP["POS1"], IDX_MAP["POS2"], IDX_MAP["POS3"]]])
+    pos = "-".join(
+        [line[i] for i in [IDX_MAP["POS1"], IDX_MAP["POS2"], IDX_MAP["POS3"]]]
+    )
     s = normalize_surface(s)
 
     return LineInfo(s, y, pos)
+
 
 def rmdups(fp_in, fp_out, dictionary_type="unidic"):
     """
@@ -70,8 +74,12 @@ def rmdups(fp_in, fp_out, dictionary_type="unidic"):
         prev = get_line_info(prev_line, IDX_MAP)
         curr = get_line_info(curr_line, IDX_MAP)
 
-        if prev.surf == curr.surf and prev.pos == curr.pos and \
-            not wt.is_person(prev_line) and not wt.is_placename(prev_line):
+        if (
+            prev.surf == curr.surf
+            and prev.pos == curr.pos
+            and not wt.is_person(prev_line)
+            and not wt.is_placename(prev_line)
+        ):
             # if the surface form and pos are the same
             distance_p = yomieval.eval(prev.surf, prev.yomi)
             distance_c = yomieval.eval(curr.surf, curr.yomi)

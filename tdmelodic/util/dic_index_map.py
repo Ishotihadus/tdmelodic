@@ -14,10 +14,10 @@ unidic_index_map = {
     "POS2": 5,  # f[1]:   pos2
     "POS3": 6,  # f[2]:   pos3
     "POS4": 7,  # f[3]:   pos4
-    "LEMMA" : 11, # f[7]:   lemma
+    "LEMMA": 11,  # f[7]:   lemma
     "YOMI": 13,  # f[9]:   pron
     "GOSHU": 16,  # f[12]:  goshu
-    "ACCENT": 27,  # f[23]:  aType
+    "ACCENT": 28,  # f[23]:  aType
 }
 
 ipadic_index_map = {
@@ -30,9 +30,10 @@ ipadic_index_map = {
     "POS4": 7,
     "LEMMA": 10,
     "YOMI": 12,
-    "GOSHU": 9, # We do not use this element. Dummy value.
-    "ACCENT": 9, # We do not use this element. Dummy value.
+    "GOSHU": 9,  # We do not use this element. Dummy value.
+    "ACCENT": 9,  # We do not use this element. Dummy value.
 }
+
 
 def get_dictionary_index_map(mode):
     if mode == "unidic":
